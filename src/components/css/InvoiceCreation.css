@@ -1,0 +1,45 @@
+.invoice-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .invoice-container select,
+  .invoice-container input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  .invoice-container button {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .invoice-container button:hover {
+    background-color: #45a049;
+  }
+  
+  .invoice-items {
+    margin-top: 20px;
+  }
+  
+  .invoice-items ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .invoice-items li {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  

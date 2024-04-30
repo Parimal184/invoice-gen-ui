@@ -1,24 +1,45 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import ProductForm from './components/ProductForm';
+import InvoiceCreation from './components/InvoiceCreation';
+import BuyersForm from './components/Buyers/BuyersForm';
+import Buyers from './components/Buyers/Buyers';
+import Sidebar from './components/Sidebar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShoppingBag, faUsers, faFileInvoice } from "@fortawesome/free-solid-svg-icons";
 
 function App() {
+  const [activeLink, setActiveLink] = useState(localStorage.getItem('activeLink') || "/invoices");
+  const [expanded, setExpanded] = useState(true);
+
+  const sidebarItems = [
+    { link: "/invoices", icon: <FontAwesomeIcon icon={faFileInvoice} />, text: "Invoices" },
+    { link: "/products", icon: <FontAwesomeIcon icon={faShoppingBag} />, text: "Products" },
+    { link: "/buyers", icon: <FontAwesomeIcon icon={faUsers} />, text: "Buyers" }
+  ];
+
+  useEffect(() => {
+    localStorage.setItem('activeLink', activeLink);
+  }, [activeLink]);
+
+  const handleItemClick = (link) => {
+    setActiveLink(link);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="flex">
+        <Sidebar expanded={expanded} setExpanded={setExpanded} setActiveLink={setActiveLink} sidebarItems={sidebarItems} activeLink={activeLink} handleItemClick={handleItemClick} />
+        <div className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Navigate to="/invoices" />} />
+            <Route path="/products" element={<ProductForm />} />
+            <Route path="/invoices" element={<InvoiceCreation />} />
+            <Route path="/buyers" element={<Buyers isSidebarOpen={expanded} />} />
+          </Routes>
+        </div>
+      </div>
+    </Router>
   );
 }
 
