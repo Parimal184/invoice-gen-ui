@@ -56,7 +56,7 @@ const CustomPDF = () => {
             height: "auto",
             borderWidth: 1, // Border width
             borderColor: 'black', // Border color
-            flexDirection: "row"
+            flexDirection: "row",
         },
         invoiceNo: {
             width: "50%",
@@ -72,25 +72,29 @@ const CustomPDF = () => {
         },
         table: {
             width: "100%",
-            // marginTop: 10,
-            borderWidth: .1,
+            marginTop: -1,
+            borderWidth: 1,
             borderColor: 'black',
-            gap:-1
+            // gap:-1
         },
         tableRow: {
             flexDirection: 'row',
         },
         tableCell: {
-            width: '25%',
-            borderWidth: 1,
+            textAlign: "center",
+            borderRightWidth: 1,
+            borderBottomWidth: 0,
             borderColor: 'black',
             padding: 5,
-            gap:-1
-            
+            paddingBottom: 1
         },
         tableHeadText: {
             fontSize: "9px"
+        },
+        tableValueText: {
+            fontSize: "9px"
         }
+
     });
 
     // Define function to generate PDF content as a string
@@ -136,56 +140,243 @@ const CustomPDF = () => {
                         </View>
                     </View>
                     <View style={styles.table}>
-                        <View style={styles.tableRow}>
-                            <View style={styles.tableCell}>
+                        <View style={{ ...styles.tableRow, borderBottomWidth: 1 }}>
+                            <View style={{ ...styles.tableCell, width: "4%", paddingBottom: 5 }}>
                                 <Text style={styles.tableHeadText}>Sr.</Text>
                             </View>
-                            <View style={styles.tableCell}>
+                            <View style={{ ...styles.tableCell, width: "45%", paddingBottom: 5 }}>
                                 <Text style={styles.tableHeadText}>Description of Goods</Text>
                             </View>
-                            <View style={styles.tableCell}>
+                            <View style={{ ...styles.tableCell, width: "13%", paddingBottom: 5 }}>
                                 <Text style={styles.tableHeadText}>HSN/SAC</Text>
                             </View>
-                            <View style={styles.tableCell}>
+                            <View style={{ ...styles.tableCell, width: "10%", paddingBottom: 5 }}>
                                 <Text style={styles.tableHeadText}>Qty</Text>
                             </View>
-                            <View style={styles.tableCell}>
+                            <View style={{ ...styles.tableCell, width: "12%", paddingBottom: 5 }}>
                                 <Text style={styles.tableHeadText}>Rate</Text>
                             </View>
-                            <View style={styles.tableCell}>
+                            <View style={{ ...styles.tableCell, width: "10%", paddingBottom: 5 }}>
                                 <Text style={styles.tableHeadText}>Per</Text>
                             </View>
-                            <View style={styles.tableCell}>
+                            <View style={{ ...styles.tableCell, width: "10%", paddingBottom: 5, borderRightWidth: 0 }}>
                                 <Text style={styles.tableHeadText}>Amount</Text>
                             </View>
                         </View>
                         {/* Product listing rows */}
                         {/* Example row */}
-                        <View style={styles.tableRow}>
-                            <View style={styles.tableCell}>
-                                <Text style={styles.text1}>Product Name</Text>
+                        {[...Array(10)].map((_, index) => (
+                            <View style={{ ...styles.tableRow, borderBottomWidth: 0, marginTop:-0.5 }}>
+                                <View style={{ ...styles.tableCell, width: "4%" }}>
+                                    <Text style={styles.tableValueText}>1</Text>
+                                </View>
+                                <View style={{ ...styles.tableCell, width: "45%" }}>
+                                    <Text style={styles.tableValueText}>Product name</Text>
+                                </View>
+                                <View style={{ ...styles.tableCell, width: "13%" }}>
+                                    <Text style={styles.tableValueText}>$10</Text>
+                                </View>
+                                <View style={{ ...styles.tableCell, width: "10%" }}>
+                                    <Text style={styles.tableValueText}>$10</Text>
+                                </View>
+                                <View style={{ ...styles.tableCell, width: "12%" }}>
+                                    <Text style={styles.tableValueText}>1</Text>
+                                </View>
+                                <View style={{ ...styles.tableCell, width: "10%" }}>
+                                    <Text style={styles.tableValueText}>$10</Text>
+                                </View>
+                                <View style={{ ...styles.tableCell, width: "10%", borderRightWidth: 0 }}>
+                                    <Text style={styles.tableValueText}>$10</Text>
+                                </View>
                             </View>
-                            <View style={styles.tableCell}>
-                                <Text style={styles.text1}>1</Text>
+                        ))}
+                        <View style={{...styles.tableRow, marginTop:-0.5}}>
+                            <View style={{ ...styles.tableCell, width: "4%" }}>
+                                <Text style={styles.tableValueText}></Text>
                             </View>
-                            <View style={styles.tableCell}>
-                                <Text style={styles.text1}>$10</Text>
+                            <View style={{ ...styles.tableCell, width: "45%" }}>
+                                <Text style={styles.tableValueText}></Text>
                             </View>
-                            <View style={styles.tableCell}>
-                                <Text style={styles.text1}>$10</Text>
+                            <View style={{ ...styles.tableCell, width: "13%" }}>
+                                <Text style={styles.tableValueText}></Text>
                             </View>
-                            <View style={styles.tableCell}>
-                                <Text style={styles.text1}>1</Text>
+                            <View style={{ ...styles.tableCell, width: "10%" }}>
+                                <Text style={styles.tableValueText}></Text>
                             </View>
-                            <View style={styles.tableCell}>
-                                <Text style={styles.text1}>$10</Text>
+                            <View style={{ ...styles.tableCell, width: "12%" }}>
+                                <Text style={styles.tableValueText}></Text>
                             </View>
-                            <View style={styles.tableCell}>
-                                <Text style={styles.text1}>$10</Text>
+                            <View style={{ ...styles.tableCell, width: "10%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", borderRightWidth: 0, borderTopWidth: 1 }}>
+                                <Text style={styles.tableValueText}>$10</Text>
+                            </View>
+                        </View>
+                        <View style={{...styles.tableRow, marginTop:-0.5}}>
+                            <View style={{ ...styles.tableCell, width: "4%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "45%", textAlign: "right" }}>
+                                <Text style={styles.tableValueText}>CGST</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "13%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "12%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", borderRightWidth: 0 }}>
+                                <Text style={styles.tableValueText}>$10</Text>
+                            </View>
+                        </View>
+                        <View style={{...styles.tableRow, marginTop:-0.5}}>
+                            <View style={{ ...styles.tableCell, width: "4%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "45%", textAlign: "right" }}>
+                                <Text style={styles.tableValueText}>SGST</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "13%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "12%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", borderRightWidth: 0 }}>
+                                <Text style={styles.tableValueText}>$10</Text>
+                            </View>
+                        </View>
+                        <View style={{...styles.tableRow, marginTop:-0.5}}>
+                            <View style={{ ...styles.tableCell, width: "4%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "45%", textAlign: "right" }}>
+                                <Text style={styles.tableValueText}>Round Off</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "13%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "12%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", borderRightWidth: 0 }}>
+                                <Text style={styles.tableValueText}>$10</Text>
+                            </View>
+                        </View>
+                        <View style={{ ...styles.tableRow, borderTopWidth: 1 }}>
+                            <View style={{ ...styles.tableCell, width: "4%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "45%", textAlign: "right", fontWeight: "bold" }}>
+                                <Text style={styles.tableValueText}>Total</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "13%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "12%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%" }}>
+                                <Text style={styles.tableValueText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", borderRightWidth: 0 }}>
+                                <Text style={styles.tableValueText}>$10</Text>
                             </View>
                         </View>
                         {/* More product rows */}
                     </View>
+                    <View style={{ ...styles.box, paddingTop: 2, paddingBottom: 2, borderTopWidth: 0 }}>
+                        <Text style={{ fontSize: "6px" }}>Amount Chargeable (In words)</Text>
+                        <Text style={{ fontSize: "10px", marginTop: 4 }}>Indian Rupees Thirty Six Thousands Nine Hundres Thyirty nine only</Text>
+                        <Text style={{ fontSize: "10px", marginTop: -11 }}>Indian Rupees Thirty Six Thousands Nine Hundres Thyirty nine only</Text>
+                    </View>
+                    <View style={styles.table}>
+                        <View style={{ ...styles.tableRow, borderBottomWidth: 0 }}>
+                            <View style={{ ...styles.tableCell, width: "30%", paddingBottom: 1 }}>
+                                <Text style={styles.tableHeadText}>HSN/SAC</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "15%", paddingBottom: 1 }}>
+                                <Text style={styles.tableHeadText}>Taxable Value</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "20%", paddingBottom: 1 }}>
+                                <Text style={styles.tableHeadText}>State Tax</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "20%", paddingBottom: 1 }}>
+                                <Text style={styles.tableHeadText}>Central Tax</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "20%", paddingBottom: 1, borderRightWidth: 0 }}>
+                                <Text style={styles.tableHeadText}>Total Tax Amount</Text>
+                            </View>
+                        </View>
+                        <View style={{ ...styles.tableRow, borderBottomWidth: 0 }}>
+                            <View style={{ ...styles.tableCell, width: "30%" }}>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "15%", padding: 2 }}>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", padding: 2, borderTopWidth: 1 }}>
+                                <Text style={styles.tableHeadText}>Rate</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", padding: 2, borderTopWidth: 1 }}>
+                                <Text style={styles.tableHeadText}>Amount</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", padding: 2, borderTopWidth: 1 }}>
+                                <Text style={styles.tableHeadText}>Rate</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", padding: 2, borderTopWidth: 1 }}>
+                                <Text style={styles.tableHeadText}>Amount</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "20%", padding: 2, borderRightWidth: 0 }}>
+                            </View>
+                        </View>
+                        {[...Array(10)].map((_, index) => (
+                            <View style={{ ...styles.tableRow, borderBottomWidth: 0, borderTopWidth: 1 }}>
+                                <View style={{ ...styles.tableCell, width: "30%", padding: 2     }}>
+                                    <Text style={styles.tableHeadText}>65466</Text>
+                                </View>
+                                <View style={{ ...styles.tableCell, width: "15%", padding: 2 }}>
+                                    <Text style={styles.tableHeadText}>1200</Text>
+                                </View>
+                                <View style={{ ...styles.tableCell, width: "10%", padding: 2 }}>
+                                    <Text style={styles.tableHeadText}>12</Text>
+                                </View>
+                                <View style={{ ...styles.tableCell, width: "10%", padding: 2 }}>
+                                    <Text style={styles.tableHeadText}>128</Text>
+                                </View>
+                                <View style={{ ...styles.tableCell, width: "10%", padding: 2 }}>
+                                    <Text style={styles.tableHeadText}>25</Text>
+                                </View>
+                                <View style={{ ...styles.tableCell, width: "10%", padding: 2 }}>
+                                    <Text style={styles.tableHeadText}>1254</Text>
+                                </View>
+                                <View style={{ ...styles.tableCell, width: "20%", padding: 2, borderRightWidth: 0 }}>
+                                    <Text style={styles.tableHeadText}>123456</Text>
+                                </View>
+                            </View>
+                        ))}
+                    </View>
+
                 </Page>
             </Document>
         );
