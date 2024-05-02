@@ -166,7 +166,7 @@ const CustomPDF = () => {
                         {/* Product listing rows */}
                         {/* Example row */}
                         {[...Array(10)].map((_, index) => (
-                            <View style={{ ...styles.tableRow, borderBottomWidth: 0, marginTop:-0.5 }}>
+                            <View style={{ ...styles.tableRow, borderBottomWidth: 0, marginTop: -0.5 }}>
                                 <View style={{ ...styles.tableCell, width: "4%" }}>
                                     <Text style={styles.tableValueText}>1</Text>
                                 </View>
@@ -190,7 +190,7 @@ const CustomPDF = () => {
                                 </View>
                             </View>
                         ))}
-                        <View style={{...styles.tableRow, marginTop:-0.5}}>
+                        <View style={{ ...styles.tableRow, marginTop: -0.5 }}>
                             <View style={{ ...styles.tableCell, width: "4%" }}>
                                 <Text style={styles.tableValueText}></Text>
                             </View>
@@ -213,7 +213,7 @@ const CustomPDF = () => {
                                 <Text style={styles.tableValueText}>$10</Text>
                             </View>
                         </View>
-                        <View style={{...styles.tableRow, marginTop:-0.5}}>
+                        <View style={{ ...styles.tableRow, marginTop: -0.5 }}>
                             <View style={{ ...styles.tableCell, width: "4%" }}>
                                 <Text style={styles.tableValueText}></Text>
                             </View>
@@ -236,7 +236,7 @@ const CustomPDF = () => {
                                 <Text style={styles.tableValueText}>$10</Text>
                             </View>
                         </View>
-                        <View style={{...styles.tableRow, marginTop:-0.5}}>
+                        <View style={{ ...styles.tableRow, marginTop: -0.5 }}>
                             <View style={{ ...styles.tableCell, width: "4%" }}>
                                 <Text style={styles.tableValueText}></Text>
                             </View>
@@ -259,7 +259,7 @@ const CustomPDF = () => {
                                 <Text style={styles.tableValueText}>$10</Text>
                             </View>
                         </View>
-                        <View style={{...styles.tableRow, marginTop:-0.5}}>
+                        <View style={{ ...styles.tableRow, marginTop: -0.5 }}>
                             <View style={{ ...styles.tableCell, width: "4%" }}>
                                 <Text style={styles.tableValueText}></Text>
                             </View>
@@ -352,31 +352,94 @@ const CustomPDF = () => {
                         </View>
                         {[...Array(10)].map((_, index) => (
                             <View style={{ ...styles.tableRow, borderBottomWidth: 0, borderTopWidth: 1 }}>
-                                <View style={{ ...styles.tableCell, width: "30%", padding: 2     }}>
-                                    <Text style={styles.tableHeadText}>65466</Text>
+                                <View style={{ ...styles.tableCell, width: "30%", padding: 2, textAlign: "right" }}>
+                                    <Text style={{ ...styles.tableHeadText }}>65466</Text>
                                 </View>
-                                <View style={{ ...styles.tableCell, width: "15%", padding: 2 }}>
+                                <View style={{ ...styles.tableCell, width: "15%", padding: 2, textAlign: "right" }}>
                                     <Text style={styles.tableHeadText}>1200</Text>
                                 </View>
-                                <View style={{ ...styles.tableCell, width: "10%", padding: 2 }}>
+                                <View style={{ ...styles.tableCell, width: "10%", padding: 2, textAlign: "right" }}>
                                     <Text style={styles.tableHeadText}>12</Text>
                                 </View>
-                                <View style={{ ...styles.tableCell, width: "10%", padding: 2 }}>
+                                <View style={{ ...styles.tableCell, width: "10%", padding: 2, textAlign: "right" }}>
                                     <Text style={styles.tableHeadText}>128</Text>
                                 </View>
-                                <View style={{ ...styles.tableCell, width: "10%", padding: 2 }}>
+                                <View style={{ ...styles.tableCell, width: "10%", padding: 2, textAlign: "right" }}>
                                     <Text style={styles.tableHeadText}>25</Text>
                                 </View>
-                                <View style={{ ...styles.tableCell, width: "10%", padding: 2 }}>
+                                <View style={{ ...styles.tableCell, width: "10%", padding: 2, textAlign: "right" }}>
                                     <Text style={styles.tableHeadText}>1254</Text>
                                 </View>
-                                <View style={{ ...styles.tableCell, width: "20%", padding: 2, borderRightWidth: 0 }}>
+                                <View style={{ ...styles.tableCell, width: "20%", padding: 2, borderRightWidth: 0, textAlign: "right" }}>
                                     <Text style={styles.tableHeadText}>123456</Text>
                                 </View>
                             </View>
                         ))}
+                        <View style={{ ...styles.tableRow, borderBottomWidth: 0, borderTopWidth: 1 }}>
+                            <View style={{ ...styles.tableCell, width: "30%", padding: 2, textAlign: "right" }}>
+                                <Text style={styles.tableHeadText}>Total</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "15%", padding: 2, textAlign: "right" }}>
+                                <Text style={styles.tableHeadText}>31334</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", padding: 2, textAlign: "right" }}>
+                                <Text style={styles.tableHeadText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", padding: 2, textAlign: "right" }}>
+                                <Text style={styles.tableHeadText}>2817</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", padding: 2, textAlign: "right" }}>
+                                <Text style={styles.tableHeadText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", padding: 2, textAlign: "right" }}>
+                                <Text style={styles.tableHeadText}>2817</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "20%", padding: 2, textAlign: "right", borderRightWidth: 0 }}>
+                                <Text style={styles.tableHeadText}>5678</Text>
+                            </View>
+                        </View>
+                        <View style={{ ...styles.tableRow, borderBottomWidth: 0, marginTop: -13 }}>
+                            <View style={{ ...styles.tableCell, width: "30%", padding: 2, textAlign: "right" }}>
+                                <Text style={styles.tableHeadText}>Total</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "15%", padding: 2, textAlign: "right" }}>
+                                <Text style={styles.tableHeadText}>31334</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", padding: 2, textAlign: "right" }}>
+                                <Text style={styles.tableHeadText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", padding: 2, textAlign: "right" }}>
+                                <Text style={styles.tableHeadText}>2817</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", padding: 2, textAlign: "right" }}>
+                                <Text style={styles.tableHeadText}></Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "10%", padding: 2, textAlign: "right" }}>
+                                <Text style={styles.tableHeadText}>2817</Text>
+                            </View>
+                            <View style={{ ...styles.tableCell, width: "20%", padding: 2, textAlign: "right", borderRightWidth: 0 }}>
+                                <Text style={styles.tableHeadText}>5678</Text>
+                            </View>
+                        </View>
                     </View>
-
+                    <View style={{ height: "18%", borderWidth: 1, borderTopWidth: 0 }}>
+                        <View style={{ fontSize: "9px", marginTop: "35px", padding: 5, lineHeight: 1.3 }}>
+                            <Text>Our Bank  : UCO BANK, SURAT, HAZIRA BRANCH, ICHHAPOOR</Text>
+                            <Text>Account Number  : 38587748584</Text>
+                            <Text>IFSC CODE : UCB152656</Text>
+                        </View>
+                        <View style={{ fontSize: "9px", marginTop: "25px", padding: 5, lineHeight: 1.3 }}>
+                            <Text>Description:</Text>
+                            <Text>We declare that this invoice shows the actual price of the goods </Text>
+                            <Text>described and that all particulars are true and correct.</Text>
+                        </View>
+                        <View style={{padding:2.5, textAlign:"right",fontSize: "11px", height: "50%", width: "50%", borderWidth: 1, borderBottomWidth: 0, borderRightWidth: 0, alignSelf: "flex-end", marginTop: -75 }}>
+                            <Text>For RK ELECTRICAL & TRADERS</Text>
+                            <Text style={{marginTop:-10.5}}>For RK ELECTRICAL & TRADERS</Text>
+                            <Text style={{marginTop:45}}>Authorised Signatory</Text>
+                        </View>
+                    </View>
+                    <Text style={{...styles.header, fontSize:"9px"}}>This is computer generated invoice</Text>
                 </Page>
             </Document>
         );
