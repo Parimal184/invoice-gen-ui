@@ -1,52 +1,60 @@
 import React, { useEffect, useState } from "react";
-import ApiService from "../services/ApiService";
-import BuyersForm from "./BuyersForm";
+import ProductForm from "./ProductForm";
 import Popup from "../common/Popup";
+import ApiService from "../services/ApiService";
 import { useGlobalContext } from "../contexts/GlobalContext";
 
-const Buyers = ({ isSidebarOpen }) => {
-    const { buyers, fetchBuyers } = useGlobalContext();
+const Products = () => {
+    const { products, setProducts } = useGlobalContext();
     const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    const fetchProducts = async () => {
+        try {
+            const productsResponse = await ApiService.getProducts();
+            setProducts(productsResponse);
+        } catch (error) {
+            console.error("Error fetching products:", error);
+        }
+    };
+
+    const handleSubmit = async (product) => {
+        const newProduct = await ApiService.saveProduct(product);
+        console.log("newProduct data", newProduct);
+        togglePopup();
+        fetchProducts();
+    };
 
     const togglePopup = () => {
         setIsPopupOpen(!isPopupOpen);
     };
 
-    useEffect(() => {
-        fetchBuyers();
-    }, []);
-
-    const handleSubmit = async (buyerData) => {
-        const newBuyer = await ApiService.addBuyer(buyerData);
-        console.log("buyers data", newBuyer);
-        togglePopup();
-        fetchBuyers();
-    };
-
     return (
         <div className="flex flex-col p-10">
             <div className="flex flex-row justify-between">
-                <h2 className="text-2xl font-bold mb-4">Buyers</h2>
+                <h2 className="text-2xl font-bold mb-4">Products</h2>
                 <div className="flex justify-end mb-4">
                     <button
                         onClick={togglePopup}
                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     >
-                        Create Buyer
+                        Create Product
                     </button>
                 </div>
             </div>
             <Popup isOpen={isPopupOpen} onClose={togglePopup}>
-                <h2 className="text-2xl font-bold mb-4">Create New Buyer</h2>
-                <BuyersForm onSubmit={handleSubmit} togglePopup={togglePopup} />
+                <h2 className="text-2xl font-bold mb-4">Create New Product</h2>
+                <ProductForm
+                    onSubmit={handleSubmit}
+                    togglePopup={togglePopup}
+                />
             </Popup>
             <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                 <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                    <div
-                        className={`overflow-x-auto ${
-                            isSidebarOpen ? "max-w-6xl" : ""
-                        } shadow border-b border-gray-200 sm:rounded-lg`}
-                    >
+                    <div className="overflow-x-auto shadow border-b border-gray-200 sm:rounded-lg">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
@@ -54,61 +62,63 @@ const Buyers = ({ isSidebarOpen }) => {
                                         scope="col"
                                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     >
-                                        Name
+                                        Product Name
                                     </th>
                                     <th
                                         scope="col"
                                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     >
-                                        Address
+                                        HSN/SAC Code
                                     </th>
                                     <th
                                         scope="col"
                                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     >
-                                        GSTIN
+                                        Rate
                                     </th>
                                     <th
                                         scope="col"
                                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     >
-                                        Email
+                                        State Tax Rate
                                     </th>
                                     <th
                                         scope="col"
                                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     >
-                                        Mobile No
+                                        Central Tax Rate
                                     </th>
                                     <th
                                         scope="col"
                                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     >
-                                        Type
+                                        Unit
                                     </th>
+                                    {/* Add more table headers for other product fields */}
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {buyers?.map((buyer) => (
-                                    <tr key={buyer.id}>
+                                {products?.map((product) => (
+                                    <tr key={product.id}>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {buyer.name}
+                                            {product.name}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {buyer.address}
+                                            {product.hsnSac}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {buyer.gstin}
+                                            {product.rate}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {buyer.email}
+                                            {product.stateTaxRate}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {buyer.mobileNo}
+                                            {product.centralTaxRate}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {buyer.type}
+                                            {product.unit}
                                         </td>
+                                        {/* Add more table cells for other product fields */}
                                     </tr>
                                 ))}
                             </tbody>
@@ -120,4 +130,4 @@ const Buyers = ({ isSidebarOpen }) => {
     );
 };
 
-export default Buyers;
+export default Products;
