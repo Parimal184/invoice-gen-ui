@@ -2,16 +2,20 @@ import React, { useEffect, useState } from "react";
 import InvoiceForm from "./InvoiceForm";
 import Popup from "../common/Popup";
 import { useGlobalContext } from "../contexts/GlobalContext";
+import moment from "moment";
+import CustomPDF from "../CustomPDF";
 
-const Invoices = ({ invoices }) => {
+const Invoices = () => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const { fetchBuyers, fetchProducts } = useGlobalContext();
+    const { fetchBuyers, fetchProducts, fetchInvoices, invoices } =
+        useGlobalContext();
 
     const togglePopup = () => {
         setIsPopupOpen(!isPopupOpen);
     };
 
     useEffect(() => {
+        fetchInvoices();
         fetchBuyers();
         fetchProducts();
     }, []);
@@ -20,6 +24,7 @@ const Invoices = ({ invoices }) => {
 
     return (
         <div className="flex flex-col p-10">
+            <CustomPDF />
             {isPopupOpen ? (
                 <>
                     <h2 className="text-2xl font-bold mb-4">
@@ -33,7 +38,7 @@ const Invoices = ({ invoices }) => {
             ) : (
                 <>
                     <div className="flex flex-row justify-between">
-                        <h2 className="text-2xl font-bold mb-4">Buyers</h2>
+                        <h2 className="text-2xl font-bold mb-4">Invoices</h2>
                         <div className="flex justify-end mb-4">
                             <button
                                 onClick={togglePopup}
@@ -50,6 +55,9 @@ const Invoices = ({ invoices }) => {
                                     <thead className="bg-gray-50">
                                         <tr>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Buyer
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Invoice Number
                                             </th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -64,10 +72,15 @@ const Invoices = ({ invoices }) => {
                                         {invoices?.map((invoice) => (
                                             <tr key={invoice.id}>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {invoice.buyerDetails.name}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                     {invoice.invoiceNumber}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {invoice.invoiceDate}
+                                                    {moment(
+                                                        invoice.invoiceDate
+                                                    ).format("DD-MM-YYYY")}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {invoice.totalAmount}

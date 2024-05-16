@@ -46,6 +46,27 @@ const ApiService = {
             throw new Error(error.response.data.message);
         }
     },
+
+    saveInvoice: async (invoice) => {
+        try {
+            const response = await axios.post(
+                `${apiUrl}Invoice/SaveInvoice`,
+                invoice
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response.data.message);
+        }
+    },
+
+    getInvoices: async () => {
+        try {
+            const response = await axios.get(`${apiUrl}Invoice/GetInvoices`);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response.data.message);
+        }
+    },
 };
 
 export default ApiService;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "../contexts/GlobalContext";
 import { Autocomplete, TextField } from "@mui/material";
+import ApiService from "../services/ApiService";
 
 const InvoiceForm = ({ togglePopup }) => {
     const [selectedBuyer, setSelectedBuyer] = useState("");
@@ -9,11 +10,9 @@ const InvoiceForm = ({ togglePopup }) => {
     const [totalAmount, setTotalAmount] = useState(0);
     const [invoiceItems, setInvoiceItems] = useState([]);
     const [buyerDetails, setBuyerDetails] = useState(null);
-    const { buyers, products } = useGlobalContext();
+    const { buyers, products, fetchInvoices } = useGlobalContext();
 
-    console.log("products :", products);
     useEffect(() => {
-        // Find the selected buyer's details
         const buyer = buyers.find((buyer) => buyer.name === selectedBuyer);
         setBuyerDetails(buyer);
     }, [selectedBuyer, buyers]);
@@ -21,6 +20,10 @@ const InvoiceForm = ({ togglePopup }) => {
     const handleSelectProduct = (productId) => {
         const product = products.find((product) => product.id == productId);
         setSelectedProduct(product);
+    };
+
+    const getSellerDetails = () => {
+        return buyers.filter((item) => item.type === "SELLER")[0];
     };
 
     const handleAddItem = () => {
@@ -37,6 +40,7 @@ const InvoiceForm = ({ togglePopup }) => {
                 setInvoiceItems(updatedItems);
             } else {
                 const newItem = {
+                    id: selectedProduct.id,
                     productName: selectedProduct.name,
                     quantity: selectedQuantity,
                     amount: selectedProduct.rate * selectedQuantity,
@@ -53,38 +57,32 @@ const InvoiceForm = ({ togglePopup }) => {
         }
     };
 
-    const generateInvoiceNumber = (serialNumber) => {
-        const currentDate = new Date();
-        const fiscalYearStartMonth = 3; // April (0-indexed)
-        const fiscalYearStartYear =
-            currentDate.getMonth() < fiscalYearStartMonth
-                ? currentDate.getFullYear() - 1
-                : currentDate.getFullYear();
-        const fiscalYearEndYear = fiscalYearStartYear + 1;
-
-        const fiscalYear = `${fiscalYearStartYear}-${fiscalYearEndYear
-            .toString()
-            .slice(-2)}`;
-
-        return `RK/${fiscalYear}/${serialNumber}`;
-    };
-
-    const handleSubmit = () => {
-        const invoiceNumber = generateInvoiceNumber("01");
+    const handleSubmit = async () => {
         const taxDetails = generateTaxDetails();
+        const sellerDetails = getSellerDetails();
+
+        console.log("taxDetails :", taxDetails);
+
         const invoice = {
-            buyer: buyerDetails,
-            taxDetails: taxDetails,
-            invoiceNo: invoiceNumber,
+            sellerDetailsId: sellerDetails.id,
+            buyerDetailsId: buyerDetails.id,
+            invoiceItems: JSON.stringify(invoiceItems),
             totalAmount: totalAmount,
-            totalAmountWithTax: Number(
-                totalAmount + taxDetails.totalOfTotalTaxAmount
-            ).toFixed(2),
+            sgst: taxDetails.totalStateTaxValue,
+            cgst: taxDetails.totalCentralTaxValue,
+            productIds: invoiceItems.map((item) => {
+                return item.id;
+            }),
         };
-        console.log("invoice :", invoice);
+
+        const invoiceResp = await ApiService.saveInvoice(invoice);
+
+        togglePopup();
+        fetchInvoices();
     };
 
     const generateTaxDetails = () => {
+        console.log("invoiceItems :", invoiceItems);
         // Initialize tax details object
         let taxDetails = {
             hsnCodeDetails: [],
@@ -307,7 +305,7 @@ const InvoiceForm = ({ togglePopup }) => {
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     type="submit"
                 >
-                    Create Product
+                    Create Invoice
                 </button>
                 <button
                     onClick={togglePopup}

@@ -8,6 +8,7 @@ const GlobalContext = createContext();
 export const GlobalContextProvider = ({ children }) => {
     const [products, setProducts] = useState([]);
     const [buyers, setBuyers] = useState([]);
+    const [invoices, setInvoices] = useState([]);
 
     const fetchBuyers = async () => {
         try {
@@ -27,6 +28,15 @@ export const GlobalContextProvider = ({ children }) => {
         }
     };
 
+    const fetchInvoices = async () => {
+        try {
+            const productResponse = await ApiService.getInvoices();
+            setInvoices(productResponse);
+        } catch (error) {
+            console.error("Error fetching buyers data:", error);
+        }
+    };
+
     return (
         <GlobalContext.Provider
             value={{
@@ -34,8 +44,11 @@ export const GlobalContextProvider = ({ children }) => {
                 setProducts,
                 buyers,
                 setBuyers,
+                invoices,
+                setInvoices,
                 fetchBuyers,
                 fetchProducts,
+                fetchInvoices,
             }}
         >
             {children}
