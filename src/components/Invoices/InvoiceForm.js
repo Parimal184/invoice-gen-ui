@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "../contexts/GlobalContext";
 import { Autocomplete, TextField } from "@mui/material";
 import ApiService from "../services/ApiService";
+import CustomPDF from "../custom-pdf/CustomPDF";
 
 const InvoiceForm = ({ togglePopup }) => {
     const [selectedBuyer, setSelectedBuyer] = useState("");
@@ -10,7 +11,8 @@ const InvoiceForm = ({ togglePopup }) => {
     const [totalAmount, setTotalAmount] = useState(0);
     const [invoiceItems, setInvoiceItems] = useState([]);
     const [buyerDetails, setBuyerDetails] = useState(null);
-    const { buyers, products, fetchInvoices } = useGlobalContext();
+    const { buyers, products, fetchInvoices, seller } = useGlobalContext();
+    const [invoice, setInvoice] = useState();
 
     useEffect(() => {
         const buyer = buyers.find((buyer) => buyer.name === selectedBuyer);
@@ -20,10 +22,6 @@ const InvoiceForm = ({ togglePopup }) => {
     const handleSelectProduct = (productId) => {
         const product = products.find((product) => product.id == productId);
         setSelectedProduct(product);
-    };
-
-    const getSellerDetails = () => {
-        return buyers.filter((item) => item.type === "SELLER")[0];
     };
 
     const handleAddItem = () => {
@@ -45,6 +43,8 @@ const InvoiceForm = ({ togglePopup }) => {
                     quantity: selectedQuantity,
                     amount: selectedProduct.rate * selectedQuantity,
                     hsnCode: selectedProduct.hsnSac,
+                    rate: selectedProduct.rate,
+                    per: selectedProduct.unit,
                 };
                 setInvoiceItems([...invoiceItems, newItem]);
             }
@@ -57,16 +57,14 @@ const InvoiceForm = ({ togglePopup }) => {
         }
     };
 
-    const handleSubmit = async () => {
+    const generateInvoice = () => {
+        debugger;
         const taxDetails = generateTaxDetails();
-        const sellerDetails = getSellerDetails();
-
-        console.log("taxDetails :", taxDetails);
-
+        taxDetails.invoiceItems = invoiceItems;
         const invoice = {
-            sellerDetailsId: sellerDetails.id,
+            sellerDetailsId: seller?.id,
             buyerDetailsId: buyerDetails.id,
-            invoiceItems: JSON.stringify(invoiceItems),
+            taxDetails: JSON.stringify(taxDetails),
             totalAmount: totalAmount,
             sgst: taxDetails.totalStateTaxValue,
             cgst: taxDetails.totalCentralTaxValue,
@@ -75,14 +73,17 @@ const InvoiceForm = ({ togglePopup }) => {
             }),
         };
 
-        const invoiceResp = await ApiService.saveInvoice(invoice);
+        return invoice;
+    };
 
-        togglePopup();
-        fetchInvoices();
+    const handleSubmit = async () => {
+        const invoice = generateInvoice();
+        const invoiceResp = await ApiService.saveInvoice(invoice);
+        invoiceResp.taxDetails = JSON.parse(invoiceResp.taxDetails);
+        setInvoice(invoiceResp);
     };
 
     const generateTaxDetails = () => {
-        console.log("invoiceItems :", invoiceItems);
         // Initialize tax details object
         let taxDetails = {
             hsnCodeDetails: [],
@@ -127,6 +128,7 @@ const InvoiceForm = ({ togglePopup }) => {
                 tempTaxDetails[product.hsnSac].centralTaxAmount +=
                     centralTaxAmount;
                 tempTaxDetails[product.hsnSac].totalTaxAmount += totalTaxAmount;
+                tempTaxDetails[product.hsnSac].taxableValue += item?.amount;
             } else {
                 // If HSN code is new, add tax details
                 tempTaxDetails[product.hsnSac] = {
@@ -136,6 +138,7 @@ const InvoiceForm = ({ togglePopup }) => {
                     stateTaxAmount: stateTaxAmount,
                     centralTaxAmount: centralTaxAmount,
                     totalTaxAmount: totalTaxAmount,
+                    taxableValue: item.amount,
                 };
             }
         });
@@ -237,7 +240,7 @@ const InvoiceForm = ({ togglePopup }) => {
                             </td>
                         </tr>
                     ))}
-                    {invoiceItems.length < 2 && (
+                    {invoiceItems.length < 11 && (
                         <tr>
                             <td className="border w-auto px-4 py-2">
                                 <Autocomplete
@@ -305,8 +308,9 @@ const InvoiceForm = ({ togglePopup }) => {
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     type="submit"
                 >
-                    Create Invoice
+                    Generate Invoice
                 </button>
+                {invoice && <CustomPDF invoice={invoice} />}
                 <button
                     onClick={togglePopup}
                     className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"

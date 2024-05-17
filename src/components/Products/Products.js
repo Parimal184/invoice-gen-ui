@@ -3,33 +3,68 @@ import ProductForm from "./ProductForm";
 import Popup from "../common/Popup";
 import ApiService from "../services/ApiService";
 import { useGlobalContext } from "../contexts/GlobalContext";
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import Pagination from "../common/Pagination";
 
-const Products = () => {
+const Products = ({ isSidebarOpen }) => {
     const { products, setProducts } = useGlobalContext();
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-
-    useEffect(() => {
-        fetchProducts();
-    }, []);
+    const [currentProduct, setCurrentProduct] = useState(null);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(10);
 
     const fetchProducts = async () => {
         try {
-            const productsResponse = await ApiService.getProducts();
-            setProducts(productsResponse);
+            const productResponse = await ApiService.getProducts(
+                currentPage,
+                10
+            );
+            console.log("productResponse :", productResponse);
+            setTotalPages(productResponse?.totalPages);
+            setProducts(
+                productResponse?.content?.map((obj) => ({
+                    ...obj,
+                    name: obj.name.toUpperCase(),
+                }))
+            );
         } catch (error) {
-            console.error("Error fetching products:", error);
+            console.error("Error fetching buyers data:", error);
         }
     };
 
+    useEffect(() => {
+        fetchProducts();
+    }, [currentPage]);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
     const handleSubmit = async (product) => {
-        const newProduct = await ApiService.saveProduct(product);
-        console.log("newProduct data", newProduct);
+        if (product.id) {
+            // Update existing product
+            await ApiService.updateProduct(product);
+        } else {
+            // Create new product
+            await ApiService.saveProduct(product);
+        }
         togglePopup();
         fetchProducts();
     };
 
     const togglePopup = () => {
         setIsPopupOpen(!isPopupOpen);
+        if (isPopupOpen) setCurrentProduct(null); // Clear current product when closing popup
+    };
+
+    const handleEdit = (product) => {
+        setCurrentProduct(product);
+        togglePopup();
+    };
+
+    const handleDelete = async (productId) => {
+        await ApiService.deleteProduct(productId);
+        fetchProducts();
     };
 
     return (
@@ -46,17 +81,24 @@ const Products = () => {
                 </div>
             </div>
             <Popup isOpen={isPopupOpen} onClose={togglePopup}>
-                <h2 className="text-2xl font-bold mb-4">Create New Product</h2>
+                <h2 className="text-2xl font-bold mb-4">
+                    {currentProduct ? "Edit Product" : "Create New Product"}
+                </h2>
                 <ProductForm
                     onSubmit={handleSubmit}
                     togglePopup={togglePopup}
+                    initialProduct={currentProduct}
                 />
             </Popup>
             <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                 <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                    <div className="overflow-x-auto shadow border-b border-gray-200 sm:rounded-lg">
+                    <div
+                        className={`overflow-x-auto ${
+                            isSidebarOpen ? "max-w-6xl" : ""
+                        } shadow border-b border-gray-200 sm:rounded-lg`}
+                    >
                         <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                            <thead className="bg-gray-50 text-nowrap">
                                 <tr>
                                     <th
                                         scope="col"
@@ -94,7 +136,7 @@ const Products = () => {
                                     >
                                         Unit
                                     </th>
-                                    {/* Add more table headers for other product fields */}
+                                    <th className="sticky bg-gray-50 right-0 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -118,12 +160,34 @@ const Products = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {product.unit}
                                         </td>
-                                        {/* Add more table cells for other product fields */}
+                                        <td className="sticky right-0 bg-white px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <div className="flex items-center space-x-4">
+                                                <button
+                                                    onClick={() =>
+                                                        handleEdit(product)
+                                                    }
+                                                >
+                                                    <FaEdit />
+                                                </button>
+                                                <button
+                                                    onClick={() =>
+                                                        handleDelete(product.id)
+                                                    }
+                                                >
+                                                    <FaTrashAlt />
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
                 </div>
             </div>
         </div>

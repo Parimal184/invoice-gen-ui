@@ -15,10 +15,12 @@ const ApiService = {
         }
     },
 
-    getBuyers: async () => {
+    getBuyers: async (page, size) => {
         try {
             const response = await axios.get(
-                `${apiUrl}ContactDetails/GetBuyers`
+                `${apiUrl}ContactDetails/GetBuyers?page=${
+                    !page ? 0 : page
+                }&size=${!size ? 10 : size}`
             );
             return response.data;
         } catch (error) {
@@ -26,9 +28,11 @@ const ApiService = {
         }
     },
 
-    getProducts: async () => {
+    getProducts: async (page, size) => {
         try {
-            const response = await axios.get(`${apiUrl}Product/GetProducts`);
+            const response = await axios.get(
+                `${apiUrl}Product/GetProducts?page=${page}&size=${size}`
+            );
             return response.data;
         } catch (error) {
             throw new Error(error.response.data.message);
@@ -40,6 +44,29 @@ const ApiService = {
             const response = await axios.post(
                 `${apiUrl}Product/SaveProduct`,
                 product
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response.data.message);
+        }
+    },
+
+    updateProduct: async (product) => {
+        try {
+            const response = await axios.put(
+                `${apiUrl}Product/UpdateProduct`,
+                product
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response.data.message);
+        }
+    },
+
+    deleteProduct: async (id) => {
+        try {
+            const response = await axios.delete(
+                `${apiUrl}Product/DeleteProduct/${id}`
             );
             return response.data;
         } catch (error) {
@@ -59,9 +86,22 @@ const ApiService = {
         }
     },
 
-    getInvoices: async () => {
+    getInvoices: async (page, size) => {
         try {
-            const response = await axios.get(`${apiUrl}Invoice/GetInvoices`);
+            const response = await axios.get(
+                `${apiUrl}Invoice/GetInvoices?page=${page}&size=${size}`
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response.data.message);
+        }
+    },
+
+    deleteInvoice: async (id) => {
+        try {
+            const response = await axios.delete(
+                `${apiUrl}Invoice/DeleteInvoice/${id}`
+            );
             return response.data;
         } catch (error) {
             throw new Error(error.response.data.message);

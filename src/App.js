@@ -62,8 +62,14 @@ function App() {
                 <div className="flex-grow">
                     <Routes>
                         <Route path="/" element={<Navigate to="/invoices" />} />
-                        <Route path="/products" element={<Products />} />
-                        <Route path="/invoices" element={<Invoices />} />
+                        <Route
+                            path="/products"
+                            element={<Products isSidebarOpen={expanded} />}
+                        />
+                        <Route
+                            path="/invoices"
+                            element={<Invoices isSidebarOpen={expanded} />}
+                        />
                         <Route
                             path="/buyers"
                             element={<Buyers isSidebarOpen={expanded} />}
