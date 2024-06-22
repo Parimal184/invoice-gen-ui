@@ -1,26 +1,69 @@
 import React, { useEffect, useState } from "react";
-import { useGlobalContext } from "../contexts/GlobalContext";
 import { Autocomplete, TextField } from "@mui/material";
 import ApiService from "../services/ApiService";
 import CustomPDF from "../custom-pdf/CustomPDF";
+import SuccessPopup from "../common/SucessPopup";
+import { useGlobalContext } from "../contexts/GlobalContext";
 
-const InvoiceForm = ({ togglePopup }) => {
+const PdfDownloadPopup = ({ invoice, onCancel, onDownload }) => {
+    return (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
+            <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 overflow-y-auto mb-4">
+                <h2 className="text-xl mb-4">Download PDF?</h2>
+                <div className="flex justify-center">
+                    {/* <button
+                        onClick={() => onDownload()}
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+                    >
+                        Download PDF
+                    </button> */}
+                    <button
+                        onClick={() => onCancel()}
+                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                    >
+                        Cancel
+                    </button>
+                </div>
+                {invoice && <CustomPDF invoice={invoice} />}
+            </div>
+        </div>
+    );
+};
+
+const InvoiceForm = ({
+    togglePopup,
+    invoiceToUpdate,
+    setSuccessMessage,
+    setPopupType,
+    successMessage,
+    popupType,
+}) => {
     const [selectedBuyer, setSelectedBuyer] = useState("");
-    const [selectedProduct, setSelectedProduct] = useState(null); // Define selectedProduct state
-    const [selectedQuantity, setSelectedQuantity] = useState(0); // Define selectedQuantity state
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedQuantity, setSelectedQuantity] = useState(0);
     const [totalAmount, setTotalAmount] = useState(0);
     const [invoiceItems, setInvoiceItems] = useState([]);
     const [buyerDetails, setBuyerDetails] = useState(null);
     const { buyers, products, fetchInvoices, seller } = useGlobalContext();
     const [invoice, setInvoice] = useState();
+    const [showPdfPopup, setShowPdfPopup] = useState(false); // State to control PDF popup
+    const [downloadPdf, setDownloadPdf] = useState(false); // State to track user's decision
 
     useEffect(() => {
         const buyer = buyers.find((buyer) => buyer.name === selectedBuyer);
         setBuyerDetails(buyer);
     }, [selectedBuyer, buyers]);
 
+    useEffect(() => {
+        if (invoiceToUpdate) {
+            setSelectedBuyer(invoiceToUpdate?.buyerDetails?.name);
+            setInvoiceItems(invoiceToUpdate?.taxDetails?.invoiceItems);
+            setTotalAmount(invoiceToUpdate?.totalAmount);
+        }
+    }, [invoiceToUpdate]);
+
     const handleSelectProduct = (productId) => {
-        const product = products.find((product) => product.id == productId);
+        const product = products.find((product) => product.id === productId);
         setSelectedProduct(product);
     };
 
@@ -58,7 +101,6 @@ const InvoiceForm = ({ togglePopup }) => {
     };
 
     const generateInvoice = () => {
-        debugger;
         const taxDetails = generateTaxDetails();
         taxDetails.invoiceItems = invoiceItems;
         const invoice = {
@@ -78,13 +120,27 @@ const InvoiceForm = ({ togglePopup }) => {
 
     const handleSubmit = async () => {
         const invoice = generateInvoice();
-        const invoiceResp = await ApiService.saveInvoice(invoice);
+        let invoiceResp = {};
+        if (invoiceToUpdate) {
+            invoiceResp = await ApiService.updateInvoice(invoice);
+            setSuccessMessage("Product updated successfully!");
+            setPopupType("popup-update");
+        } else {
+            invoiceResp = await ApiService.saveInvoice(invoice);
+            setSuccessMessage("Product created successfully!");
+            setPopupType("popup-success");
+        }
+        setTimeout(() => {
+            setSuccessMessage("");
+        }, 3000);
         invoiceResp.taxDetails = JSON.parse(invoiceResp.taxDetails);
         setInvoice(invoiceResp);
+
+        // Show PDF popup after setting invoiceResp
+        setShowPdfPopup(true);
     };
 
     const generateTaxDetails = () => {
-        // Initialize tax details object
         let taxDetails = {
             hsnCodeDetails: [],
             totalTaxableValue: 0,
@@ -93,20 +149,17 @@ const InvoiceForm = ({ togglePopup }) => {
             totalOfTotalTaxAmount: 0,
         };
 
-        // Temporary object to store tax details for each HSN code
         let tempTaxDetails = {};
 
-        // Iterate through invoice items to calculate tax details
         invoiceItems.forEach((item) => {
             const { productName, quantity, amount } = item;
             const product = products.find(
-                (product) => product.name == productName
+                (product) => product.name === productName
             );
 
-            // Calculate tax details for the item
             const taxRateState = product.stateTaxRate;
             const taxRateCentral = product.centralTaxRate;
-            const taxableValue = amount; // Assuming amount is taxable
+            const taxableValue = amount;
             const stateTaxAmount = Number(
                 ((taxableValue * taxRateState) / 100).toFixed(2)
             );
@@ -117,12 +170,9 @@ const InvoiceForm = ({ togglePopup }) => {
                 (stateTaxAmount + centralTaxAmount).toFixed(2)
             );
 
-            // Update total taxable value
             taxDetails.totalTaxableValue += taxableValue;
 
-            // Group items based on HSN code
             if (tempTaxDetails.hasOwnProperty(product.hsnSac)) {
-                // If HSN code already exists, update tax details
                 tempTaxDetails[product.hsnSac].taxableValue += taxableValue;
                 tempTaxDetails[product.hsnSac].stateTaxAmount += stateTaxAmount;
                 tempTaxDetails[product.hsnSac].centralTaxAmount +=
@@ -130,7 +180,6 @@ const InvoiceForm = ({ togglePopup }) => {
                 tempTaxDetails[product.hsnSac].totalTaxAmount += totalTaxAmount;
                 tempTaxDetails[product.hsnSac].taxableValue += item?.amount;
             } else {
-                // If HSN code is new, add tax details
                 tempTaxDetails[product.hsnSac] = {
                     hsnCode: product.hsnSac,
                     stateTaxRate: taxRateState,
@@ -143,10 +192,8 @@ const InvoiceForm = ({ togglePopup }) => {
             }
         });
 
-        // Convert tempTaxDetails to array and add to taxDetails
         taxDetails.hsnCodeDetails = Object.values(tempTaxDetails);
 
-        // Calculate total tax amounts
         taxDetails.hsnCodeDetails.forEach((product) => {
             taxDetails.totalStateTaxValue = Number(
                 (
@@ -170,6 +217,25 @@ const InvoiceForm = ({ togglePopup }) => {
 
     return (
         <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 overflow-y-auto mb-4">
+            {successMessage && (
+                <SuccessPopup
+                    message={successMessage}
+                    onClose={() => setSuccessMessage("")}
+                    type={popupType}
+                />
+            )}
+            {showPdfPopup && (
+                <PdfDownloadPopup
+                    invoice={invoice}
+                    onCancel={() => setShowPdfPopup(false)}
+                    onDownload={() => {
+                        // Handle PDF download logic
+                        setShowPdfPopup(false);
+                        // For example, navigate to list invoices page
+                        fetchInvoices(); // Assuming fetchInvoices is a function to update invoices
+                    }}
+                />
+            )}
             <label className="block mb-2">Select Buyer:</label>
             <select
                 value={selectedBuyer}
@@ -183,14 +249,7 @@ const InvoiceForm = ({ togglePopup }) => {
                     </option>
                 ))}
             </select>
-            {/* {buyerDetails && (
-                <div>
-                    <h3>Buyer Details:</h3>
-                    <p>Name: {buyerDetails.name}</p>
-                    <p>Address: {buyerDetails.address}</p>
-                </div>
-            )} */}
-            <br></br>
+            <br />
             <label className="block font-bold text-base mb-2">Products:</label>
             <table className="w-full border-collapse border border-gray-300 mb-4">
                 <thead>
@@ -203,7 +262,7 @@ const InvoiceForm = ({ togglePopup }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {invoiceItems.map((item, index) => (
+                    {invoiceItems?.map((item, index) => (
                         <tr key={index}>
                             <td className="border px-4 py-2">
                                 {item.productName}
@@ -212,14 +271,11 @@ const InvoiceForm = ({ togglePopup }) => {
                                 {item.quantity}
                             </td>
                             <td className="border px-4 py-2">
-                                {
-                                    products.find(
-                                        (product) =>
-                                            product.name === item.productName
-                                    )?.rate
-                                }
+                                {Number(item?.rate).toFixed(2)}
                             </td>
-                            <td className="border px-4 py-2">{item.amount}</td>
+                            <td className="border px-4 py-2">
+                                {Number(item.amount).toFixed(2)}
+                            </td>
                             <td className="border px-4 py-2">
                                 <button
                                     onClick={() => {
@@ -298,7 +354,7 @@ const InvoiceForm = ({ togglePopup }) => {
             <label className="block mb-2">Total Amount:</label>
             <input
                 type="text"
-                value={totalAmount}
+                value={Number(totalAmount).toFixed(2)}
                 readOnly
                 className="border border-gray-400 rounded px-3 py-2 mb-4 w-full"
             />
@@ -310,7 +366,6 @@ const InvoiceForm = ({ togglePopup }) => {
                 >
                     Generate Invoice
                 </button>
-                {invoice && <CustomPDF invoice={invoice} />}
                 <button
                     onClick={togglePopup}
                     className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"

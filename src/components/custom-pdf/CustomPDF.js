@@ -1094,9 +1094,9 @@ const CustomPDF = ({ invoice, icon }) => {
                         </PDFViewer>
                         <PDFDownloadLink
                             document={<GeneratePDFContent />}
-                            fileName="somename.pdf"
+                            fileName={`${invoice?.invoiceNumber}.pdf`}
                         >
-                            {({ blob, url, loading, error }) =>
+                            {({ loading }) =>
                                 loading ? (
                                     "Loading document..."
                                 ) : (

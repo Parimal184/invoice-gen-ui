@@ -3,7 +3,7 @@ import axios from "axios";
 const apiUrl = "http://localhost:8080/api/";
 
 const ApiService = {
-    addBuyer: async (buyerDetails) => {
+    saveBuyer: async (buyerDetails) => {
         try {
             const response = await axios.post(
                 `${apiUrl}ContactDetails/SaveBuyer`,
@@ -21,6 +21,29 @@ const ApiService = {
                 `${apiUrl}ContactDetails/GetBuyers?page=${
                     !page ? 0 : page
                 }&size=${!size ? 10 : size}`
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response.data.message);
+        }
+    },
+
+    updateBuyer: async (buyerDetails) => {
+        try {
+            const response = await axios.put(
+                `${apiUrl}ContactDetails/UpdateBuyer`,
+                buyerDetails
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response.data.message);
+        }
+    },
+
+    deleteBuyer: async (id) => {
+        try {
+            const response = await axios.delete(
+                `${apiUrl}ContactDetails/DeleteBuyer/${id}`
             );
             return response.data;
         } catch (error) {
@@ -78,6 +101,18 @@ const ApiService = {
         try {
             const response = await axios.post(
                 `${apiUrl}Invoice/SaveInvoice`,
+                invoice
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response.data.message);
+        }
+    },
+
+    updateInvoice: async (invoice) => {
+        try {
+            const response = await axios.put(
+                `${apiUrl}Invoice/UpdateInvoice`,
                 invoice
             );
             return response.data;

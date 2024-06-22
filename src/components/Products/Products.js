@@ -5,13 +5,18 @@ import ApiService from "../services/ApiService";
 import { useGlobalContext } from "../contexts/GlobalContext";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import Pagination from "../common/Pagination";
+import SuccessPopup from "../common/SucessPopup";
 
 const Products = ({ isSidebarOpen }) => {
     const { products, setProducts } = useGlobalContext();
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [currentProduct, setCurrentProduct] = useState(null);
     const [currentPage, setCurrentPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(10);
+    const [totalPages, setTotalPages] = useState(0);
+    const [isConfirmPopupOpen, setIsConfirmPopupOpen] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
+    const [successMessage, setSuccessMessage] = useState("");
+    const [popupType, setPopupType] = useState("popup-success");
 
     const fetchProducts = async () => {
         try {
@@ -19,7 +24,6 @@ const Products = ({ isSidebarOpen }) => {
                 currentPage,
                 10
             );
-            console.log("productResponse :", productResponse);
             setTotalPages(productResponse?.totalPages);
             setProducts(
                 productResponse?.content?.map((obj) => ({
@@ -41,15 +45,26 @@ const Products = ({ isSidebarOpen }) => {
     };
 
     const handleSubmit = async (product) => {
-        if (product.id) {
-            // Update existing product
-            await ApiService.updateProduct(product);
-        } else {
-            // Create new product
-            await ApiService.saveProduct(product);
+        try {
+            if (product.id) {
+                // Update existing product
+                await ApiService.updateProduct(product);
+                setSuccessMessage("Product updated successfully!");
+                setPopupType("popup-update");
+            } else {
+                // Create new product
+                await ApiService.saveProduct(product);
+                setSuccessMessage("Product created successfully!");
+                setPopupType("popup-success");
+            }
+            setTimeout(() => {
+                setSuccessMessage("");
+            }, 3000);
+            togglePopup();
+            fetchProducts();
+        } catch (error) {
+            console.error("Error saving product:", error);
         }
-        togglePopup();
-        fetchProducts();
     };
 
     const togglePopup = () => {
@@ -62,9 +77,25 @@ const Products = ({ isSidebarOpen }) => {
         togglePopup();
     };
 
-    const handleDelete = async (productId) => {
-        await ApiService.deleteProduct(productId);
-        fetchProducts();
+    const toggleConfirmPopup = (productId) => {
+        setIsConfirmPopupOpen(!isConfirmPopupOpen);
+        setProductToDelete(productId);
+    };
+
+    const handleDelete = async () => {
+        try {
+            await ApiService.deleteProduct(productToDelete);
+            setSuccessMessage("Product deleted successfully!");
+            setPopupType("popup-delete");
+            fetchProducts();
+            setTimeout(() => {
+                setSuccessMessage("");
+            }, 3000);
+        } catch (error) {
+            console.error("Error deleting product:", error);
+        } finally {
+            toggleConfirmPopup();
+        }
     };
 
     return (
@@ -90,6 +121,31 @@ const Products = ({ isSidebarOpen }) => {
                     initialProduct={currentProduct}
                 />
             </Popup>
+            <Popup isOpen={isConfirmPopupOpen} onClose={toggleConfirmPopup}>
+                <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
+                <p>Are you sure you want to delete this product?</p>
+                <div className="flex justify-end space-x-4 mt-4">
+                    <button
+                        onClick={toggleConfirmPopup}
+                        className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleDelete}
+                        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </Popup>
+            {successMessage && (
+                <SuccessPopup
+                    message={successMessage}
+                    onClose={() => setSuccessMessage("")}
+                    type={popupType}
+                />
+            )}
             <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                 <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                     <div
@@ -134,19 +190,18 @@ const Products = ({ isSidebarOpen }) => {
                                         scope="col"
                                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     >
-                                        Unit
+                                        Actions
                                     </th>
-                                    <th className="sticky bg-gray-50 right-0 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {products?.map((product) => (
+                                {products.map((product) => (
                                     <tr key={product.id}>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             {product.name}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {product.hsnSac}
+                                            {product.hsnSacCode}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {product.rate}
@@ -157,10 +212,7 @@ const Products = ({ isSidebarOpen }) => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {product.centralTaxRate}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {product.unit}
-                                        </td>
-                                        <td className="sticky right-0 bg-white px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex items-center space-x-4">
                                                 <button
                                                     onClick={() =>
@@ -171,7 +223,9 @@ const Products = ({ isSidebarOpen }) => {
                                                 </button>
                                                 <button
                                                     onClick={() =>
-                                                        handleDelete(product.id)
+                                                        toggleConfirmPopup(
+                                                            product.id
+                                                        )
                                                     }
                                                 >
                                                     <FaTrashAlt />
@@ -183,13 +237,13 @@ const Products = ({ isSidebarOpen }) => {
                             </tbody>
                         </table>
                     </div>
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                    />
                 </div>
             </div>
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+            />
         </div>
     );
 };

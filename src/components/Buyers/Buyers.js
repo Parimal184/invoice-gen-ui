@@ -5,13 +5,18 @@ import ApiService from "../services/ApiService";
 import { useGlobalContext } from "../contexts/GlobalContext";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import Pagination from "../common/Pagination";
+import SuccessPopup from "../common/SucessPopup";
 
 const Buyers = ({ isSidebarOpen }) => {
     const { buyers, setBuyers, setSeller } = useGlobalContext();
     const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
     const [currentBuyer, setCurrentBuyer] = useState(null);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState();
+    const [buyerToDelete, setBuyerToDelete] = useState(null);
+    const [isConfirmPopupOpen, setIsConfirmPopupOpen] = useState(false);
+    const [popupType, setPopupType] = useState("popup-success");
 
     const fetchBuyers = async () => {
         try {
@@ -35,12 +40,17 @@ const Buyers = ({ isSidebarOpen }) => {
 
     const handleSubmit = async (buyer) => {
         if (buyer.id) {
-            // Update existing buyer
             await ApiService.updateBuyer(buyer);
+            setPopupType("popup-update");
+            setSuccessMessage("Buyer updated successfully.");
         } else {
-            // Create new buyer
             await ApiService.saveBuyer(buyer);
+            setPopupType("popup-success");
+            setSuccessMessage("Buyer added successfully.");
         }
+        setTimeout(() => {
+            setSuccessMessage("");
+        }, 3000);
         togglePopup();
         fetchBuyers();
     };
@@ -50,6 +60,10 @@ const Buyers = ({ isSidebarOpen }) => {
         if (isPopupOpen) setCurrentBuyer(null); // Clear current buyer when closing popup
     };
 
+    const toggleConfirmPopup = () => {
+        setIsConfirmPopupOpen(!isConfirmPopupOpen);
+    };
+
     const handleEdit = (buyer) => {
         setCurrentBuyer(buyer);
         togglePopup();
@@ -57,7 +71,14 @@ const Buyers = ({ isSidebarOpen }) => {
 
     const handleDelete = async (buyerId) => {
         await ApiService.deleteBuyer(buyerId);
+        setPopupType("popup-delete");
+        setSuccessMessage("Buyer deleted successfully.");
         fetchBuyers();
+    };
+
+    const confirmDelete = (buyerId) => {
+        setBuyerToDelete(buyerId);
+        toggleConfirmPopup();
     };
 
     const handlePageChange = (page) => {
@@ -77,6 +98,13 @@ const Buyers = ({ isSidebarOpen }) => {
                     </button>
                 </div>
             </div>
+            {successMessage && (
+                <SuccessPopup
+                    message={successMessage}
+                    onClose={() => setSuccessMessage("")}
+                    type={popupType}
+                />
+            )}
             <Popup isOpen={isPopupOpen} onClose={togglePopup}>
                 <h2 className="text-2xl font-bold mb-4">
                     {currentBuyer ? "Edit Buyer" : "Add New Buyer"}
@@ -86,6 +114,27 @@ const Buyers = ({ isSidebarOpen }) => {
                     togglePopup={togglePopup}
                     initialBuyer={currentBuyer}
                 />
+            </Popup>
+            <Popup isOpen={isConfirmPopupOpen} onClose={toggleConfirmPopup}>
+                <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
+                <p>Are you sure you want to delete this buyer?</p>
+                <div className="mt-4 flex justify-end space-x-2">
+                    <button
+                        onClick={toggleConfirmPopup}
+                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={() => {
+                            handleDelete(buyerToDelete);
+                            toggleConfirmPopup();
+                        }}
+                        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                    >
+                        Delete
+                    </button>
+                </div>
             </Popup>
             <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                 <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -163,7 +212,7 @@ const Buyers = ({ isSidebarOpen }) => {
                                                 </button>
                                                 <button
                                                     onClick={() =>
-                                                        handleDelete(buyer.id)
+                                                        confirmDelete(buyer.id)
                                                     }
                                                 >
                                                     <FaTrashAlt />
