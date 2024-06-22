@@ -10,13 +10,8 @@ const PdfDownloadPopup = ({ invoice, onCancel, onDownload }) => {
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
             <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 overflow-y-auto mb-4">
                 <h2 className="text-xl mb-4">Download PDF?</h2>
-                <div className="flex justify-center">
-                    {/* <button
-                        onClick={() => onDownload()}
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
-                    >
-                        Download PDF
-                    </button> */}
+                <div className="flex justify-center gap-5">
+                    {invoice && <CustomPDF invoice={invoice} />}
                     <button
                         onClick={() => onCancel()}
                         className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
@@ -24,7 +19,6 @@ const PdfDownloadPopup = ({ invoice, onCancel, onDownload }) => {
                         Cancel
                     </button>
                 </div>
-                {invoice && <CustomPDF invoice={invoice} />}
             </div>
         </div>
     );
@@ -123,11 +117,11 @@ const InvoiceForm = ({
         let invoiceResp = {};
         if (invoiceToUpdate) {
             invoiceResp = await ApiService.updateInvoice(invoice);
-            setSuccessMessage("Product updated successfully!");
+            setSuccessMessage("Invoice updated successfully!");
             setPopupType("popup-update");
         } else {
             invoiceResp = await ApiService.saveInvoice(invoice);
-            setSuccessMessage("Product created successfully!");
+            setSuccessMessage("Invoice created successfully!");
             setPopupType("popup-success");
         }
         setTimeout(() => {

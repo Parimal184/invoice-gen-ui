@@ -1,10 +1,4 @@
-import React, { useEffect, useState } from "react";
-import {
-    BrowserRouter as Router,
-    Route,
-    Routes,
-    Navigate,
-} from "react-router-dom";
+import React, { useState } from "react";
 import Buyers from "./components/Buyers/Buyers";
 import Sidebar from "./components/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,9 +11,7 @@ import Products from "./components/Products/Products";
 import Invoices from "./components/Invoices/Invoices";
 
 function App() {
-    const [activeLink, setActiveLink] = useState(
-        localStorage.getItem("activeLink") || "/invoices"
-    );
+    const [activeItem, setActiveItem] = useState("Invoices");
     const [expanded, setExpanded] = useState(true);
 
     const sidebarItems = [
@@ -40,44 +32,34 @@ function App() {
         },
     ];
 
-    useEffect(() => {
-        localStorage.setItem("activeLink", activeLink);
-    }, [activeLink]);
-
     const handleItemClick = (link) => {
-        setActiveLink(link);
+        setActiveItem(link);
     };
 
+    console.log("active :", activeItem);
+
+    // Render the component based on activeItem state
+    let componentToRender;
+    if (activeItem === "Products") {
+        componentToRender = <Products isSidebarOpen={expanded} />;
+    } else if (activeItem === "Buyers") {
+        componentToRender = <Buyers isSidebarOpen={expanded} />;
+    } else {
+        componentToRender = <Invoices isSidebarOpen={expanded} />;
+    }
+
     return (
-        <Router>
-            <div className="flex">
-                <Sidebar
-                    expanded={expanded}
-                    setExpanded={setExpanded}
-                    setActiveLink={setActiveLink}
-                    sidebarItems={sidebarItems}
-                    activeLink={activeLink}
-                    handleItemClick={handleItemClick}
-                />
-                <div className="flex-grow">
-                    <Routes>
-                        <Route path="/" element={<Navigate to="/invoices" />} />
-                        <Route
-                            path="/products"
-                            element={<Products isSidebarOpen={expanded} />}
-                        />
-                        <Route
-                            path="/invoices"
-                            element={<Invoices isSidebarOpen={expanded} />}
-                        />
-                        <Route
-                            path="/buyers"
-                            element={<Buyers isSidebarOpen={expanded} />}
-                        />
-                    </Routes>
-                </div>
-            </div>
-        </Router>
+        <div className="flex">
+            <Sidebar
+                expanded={expanded}
+                setExpanded={setExpanded}
+                sidebarItems={sidebarItems}
+                handleItemClick={handleItemClick}
+                activeItem={activeItem}
+                setActiveItem={setActiveItem}
+            />
+            <div className="flex-grow">{componentToRender}</div>
+        </div>
     );
 }
 

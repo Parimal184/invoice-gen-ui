@@ -201,7 +201,7 @@ const Products = ({ isSidebarOpen }) => {
                                             {product.name}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {product.hsnSacCode}
+                                            {product.hsnSac}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {product.rate}

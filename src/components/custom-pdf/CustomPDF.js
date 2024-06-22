@@ -11,11 +11,9 @@ import {
 import Popup from "../common/Popup";
 import moment from "moment";
 import numWords from "num-words";
-import { useNavigate } from "react-router-dom";
 
 // Define CustomPDF component for generating the PDF
 const CustomPDF = ({ invoice, icon }) => {
-    const navigate = useNavigate();
     const [pdfGenerated, setPdfGenerated] = useState(false);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [taxDetails, setTaxDetails] = useState();
@@ -38,7 +36,7 @@ const CustomPDF = ({ invoice, icon }) => {
     };
 
     const onPdfDownload = () => {
-        navigate("/");
+        // navigate("/");
     };
 
     function camelCase(str) {

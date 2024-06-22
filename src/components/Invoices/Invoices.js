@@ -64,6 +64,39 @@ const Invoices = ({ isSidebarOpen }) => {
         }
     };
 
+    const fetchBuyers = async () => {
+        try {
+            const buyersResponse = await ApiService.getBuyers();
+            const buyerData = buyersResponse?.content?.map((obj) => ({
+                ...obj,
+                name: obj.name.toUpperCase(),
+            }));
+            setSeller(buyerData.filter((item) => item.type === "SELLER")[0]);
+            setBuyers(buyerData.filter((item) => item.type !== "SELLER"));
+        } catch (error) {
+            console.error("Error fetching buyers data:", error);
+        }
+    };
+
+    const fetchProducts = async () => {
+        try {
+            const productResponse = await ApiService.getProducts(0, 1000);
+            setProducts(
+                productResponse?.content?.map((obj) => ({
+                    ...obj,
+                    name: obj.name.toUpperCase(),
+                }))
+            );
+        } catch (error) {
+            console.error("Error fetching buyers data:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchBuyers();
+        fetchProducts();
+    }, []);
+
     useEffect(() => {
         fetchInvoices();
     }, [currentPage, successMessage]);
